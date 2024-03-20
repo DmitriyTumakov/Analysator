@@ -28,79 +28,41 @@ public class Main {
         }).start();
 
         new Thread(() -> {
-            int maxAmount = 0;
-            int textNumber = 0;
-            for (int i = 0; i < TEXTS_AMOUNT; i++) {
-                int aAmount = 0;
-                try {
-                    String text = queueA.take();
-                    for (int j = 0; j < text.length(); j++) {
-                        if (j != text.length() - 1) {
-                            if (text.charAt(j) == 'a') {
-                                aAmount++;
-                                textNumber = i;
-                            }
-                        }
-                    }
-                    if (aAmount > maxAmount) {
-                        maxAmount = aAmount;
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            System.out.printf("Максимальное количество символов A (%d) находится в потоке №%d\n", maxAmount, textNumber);
+            findMaxSymbols(queueA, 'a');
         }).start();
 
         new Thread(() -> {
-            int maxAmount = 0;
-            int textNumber = 0;
-            for (int i = 0; i < TEXTS_AMOUNT; i++) {
-                int bAmount = 0;
-                try {
-                    String text = queueB.take();
-                    for (int j = 0; j < text.length(); j++) {
-                        if (j != text.length() - 1) {
-                            if (text.charAt(j) == 'b') {
-                                bAmount++;
-                            }
-                        }
-                    }
-                    if (bAmount > maxAmount) {
-                        maxAmount = bAmount;
-                        textNumber = i;
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            System.out.printf("Максимальное количество символов A (%d) находится в потоке №%d\n", maxAmount, textNumber);
+            findMaxSymbols(queueB, 'b');
         }).start();
 
         new Thread(() -> {
-            int maxAmount = 0;
-            int textNumber = 0;
-            for (int i = 0; i < TEXTS_AMOUNT; i++) {
-                int cAmount = 0;
-                try {
-                    String text = queueC.take();
-                    for (int j = 0; j < text.length(); j++) {
-                        if (j != text.length() - 1) {
-                            if (text.charAt(j) == 'c') {
-                                cAmount++;
-                            }
+            findMaxSymbols(queueC, 'c');
+        }).start();
+    }
+
+    private static void findMaxSymbols(BlockingQueue<String> queue, char symbol) {
+        int maxAmount = 0;
+        int textNumber = 0;
+        for (int i = 0; i < TEXTS_AMOUNT; i++) {
+            int amount = 0;
+            try {
+                String text = queue.take();
+                for (int j = 0; j < text.length(); j++) {
+                    if (j != text.length() - 1) {
+                        if (text.charAt(j) == symbol) {
+                            amount++;
                         }
                     }
-                    if (cAmount > maxAmount) {
-                        maxAmount = cAmount;
-                        textNumber = i;
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
+                if (amount > maxAmount) {
+                    maxAmount = amount;
+                    textNumber = i;
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            System.out.printf("Максимальное количество символов A (%d) находится в потоке №%d\n", maxAmount, textNumber);
-        }).start();
+        }
+        System.out.printf("Максимальное количество символов \"%C\" (%d) находится в потоке №%d\n", symbol, maxAmount, textNumber);
     }
 
     public static String generateText(String letters, int length) {
